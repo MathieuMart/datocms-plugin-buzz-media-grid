@@ -11,9 +11,13 @@ This plugin allows you to create some grids with customizable columns and rows c
 
 ## Features
 
-1. Customizable grid size
-2. Easy area selection (click & drag)
-3. Integrated with Dato media selector
+1. **Customizable** grid size
+   1. At **plugin config** level
+   2. At **field config** level
+   3. At **user** level (optional)
+2. Easy area selection (**click & drag**)
+3. **Multiple custom layouts** support (desktop, mobile, etc...)
+4. Integrated with **Dato media selector**
 
 ## Usage
 

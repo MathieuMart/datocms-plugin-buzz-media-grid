@@ -8,6 +8,7 @@
 
   .media-grid-field_grid-container {
     position: relative;
+    margin-block-end: var(--spacing-m);
   }
 
   .media-grid-field_grid {
@@ -59,6 +60,20 @@
     align-items: center;
     background: white;
     pointer-events: all;
+
+    &:hover {
+      &:before {
+        position: absolute;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        z-index: 1;
+        border: 2px solid var(--warning-color);
+        pointer-events: none;
+        content: '';
+      }
+    }
   }
 
   .media-grid-field_area-image,
@@ -76,5 +91,15 @@
     background: #dee2e0;
     padding: 10px;
     font-weight: bold;
+  }
+
+  .media-grid-field_grid-settings {
+    display: flex;
+    gap: var(--spacing-m);
+    width: 100%;
+
+    > div {
+      flex-grow: 1;
+    }
   }
 }

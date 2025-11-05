@@ -1,286 +1,194 @@
 // @ts-nocheck
 
 import { get } from '@blackbyte/sugar/object'
-import { uniqid } from '@blackbyte/sugar/string'
+import { upperFirst } from '@blackbyte/sugar/string'
 import { buildClient } from '@datocms/cma-client-browser'
-import { Canvas } from 'datocms-react-ui'
-import { createRef, useRef, useState } from 'react'
-import DeleteButton from '../ui/deleteButton/deleteButton'
+import { Canvas, FieldGroup, SelectField, TextField } from 'datocms-react-ui'
+import { useState } from 'react'
+import { MEDIA_GRID_DEFAULTS } from '../config/config'
 import './mediaGrid.css'
-import { TMediaGrid, TMediaGridArea } from './mediaGrid.type'
+import { TMediaGridGrid } from './mediaGrid.type'
+import MediaGridGrid from './mediaGridGrid'
 
 export default function MediaGridField({ ctx }) {
-  const currentValueRaw = get(ctx.formValues, ctx.fieldPath) ?? '{}'
-  const grid = JSON.parse(currentValueRaw) as TMediaGrid
-  const locale = ctx.locale || 'en'
-  const pluginName = ctx.plugin.attributes?.parameters?.pluginName
-  const gridModels = ctx.plugin.attributes?.parameters?.gridModels ?? []
+  const parameters = ctx.parameters
   const apiToken = ctx.currentUserAccessToken
-
-  const $root = createRef<HTMLDivElement>()
-
-  const isMounted = useRef(false)
-  const isPointerDown = useRef(false)
-
+  const config = (ctx.plugin.attributes.parameters ?? {}) as TConfig
+  const currentValueRaw = get(ctx.formValues, ctx.fieldPath) ?? '{}'
   const client = buildClient({ apiToken, environment: ctx.environment })
-  const setParameterValue = (parameterId: string, newValue: any) => {
-    if (grid[parameterId] === newValue) {
-      return
+  const [layouts, setLayouts] = useState(JSON.parse(currentValueRaw))
+
+  const layoutsOptions = (config.layouts ?? []).map((layout) => ({
+    label: upperFirst(layout),
+    value: layout
+  }))
+  const [layout, setLayout] = useState(layoutsOptions[0])
+
+  const initNewGrid = (): TMediaGridGrid => {
+    layouts[layout.value] = {
+      columns: parameters[layout.value]?.columns ?? MEDIA_GRID_DEFAULTS.columns,
+      rows: parameters[layout.value]?.rows ?? MEDIA_GRID_DEFAULTS.rows,
+      areas: []
     }
+    return layouts[layout.value]
+  }
+
+  const [currentGrid, setCurrentGrid] = useState<TMediaGridGrid>(
+    layouts[layout.value]
+  )
+  if (!currentGrid) {
+    setCurrentGrid(initNewGrid())
+  }
+
+  let changeGridLayoutTimeout
+  const [tempColumns, setTempColumns] = useState()
+  const [tempRows, setTempRows] = useState()
+
+  const setGrid = (layoutId: string, newGrid: TMediaGridGrid) => {
+    // if the value is the same, do nothing
+    // if (JSON.stringify(layouts[layoutId]) === JSON.stringify(newGrid)) {
+    //   console.log('SA')
+    //   return
+    // }
 
     // set then new value
-    grid[parameterId] = newValue
-    ctx.setFieldValue(ctx.fieldPath, JSON.stringify(grid))
+    const newLayouts = {
+      ...layouts,
+      [layoutId]: newGrid
+    }
+
+    setLayouts(newLayouts)
+    ctx.setFieldValue(ctx.fieldPath, JSON.stringify(layouts))
   }
 
-  const [columns, setColumns] = useState(
-    grid.columns || ctx.parameters.columns || 6
-  )
-  const [rows, setRows] = useState(grid.rows || ctx.parameters.rows || 6)
-  const [selecting, setSelecting] = useState(false)
-  const [areas, setAreas] = useState<TMediaGridArea[]>(grid.areas || [])
-  const [startArea, setStartArea] = useState<[number, number] | null>(null)
-  const [endArea, setEndArea] = useState<[number, number] | null>(null)
-
-  // set non updatable parameters only once
-  setParameterValue('columns', columns)
-  setParameterValue('rows', rows)
-
-  const addArea = (start: [number, number], end: [number, number]) => {
-    const newAreas = [...(areas ?? [])]
-    newAreas.push({
-      id: uniqid(),
-      position: [
-        Math.min(start[0], end[0]),
-        Math.min(start[1], end[1]),
-        Math.max(start[0], end[0]),
-        Math.max(start[1], end[1])
-      ],
-      content: null
-    })
-    setAreas(newAreas)
-    setParameterValue('areas', newAreas)
-  }
-
-  const getAreaById = (id: string): TMediaGridArea | null => {
-    for (let area of areas) {
-      if (area.id === id) {
-        return area
+  const switchToLayout = (layoutId: string) => {
+    setLayout(layoutsOptions.find((l) => l.value === layoutId))
+    if (!layouts[layoutId]) {
+      const newLayouts = {
+        ...layouts,
+        [layoutId]: initNewGrid()
       }
-    }
-    return null
-  }
-
-  const onGridCellPointerDown = (e: MouseEvent) => {
-    if (!e.target.classList.contains('media-grid-field_cell')) {
-      return
+      setLayouts({ ...layouts })
     }
 
-    e.preventDefault
-
-    const $cell = e.target as HTMLElement
-    const cellPosition = getCellPosition($cell)
-
-    setSelecting(true)
-    setStartArea(cellPosition)
-  }
-
-  const onGridCellPointerUp = (e: PointerEvent) => {
-    e.preventDefault
-
-    addArea(startArea, endArea)
-
-    setSelecting(false)
-    setStartArea(null)
-    setEndArea(null)
-  }
-
-  const getCellPosition = ($cell: HTMLElement): [number, number] => {
-    const index = Array.from(
-      $root.current.querySelectorAll('.media-grid-field_cell')
-    ).indexOf($cell)
-
-    const row = Math.floor(index / columns)
-    const column = index % columns
-    return [row, column]
-  }
-
-  const onPointerEnter = (e: PointerEvent) => {
-    if (!selecting) {
-      return
-    }
-
-    // get the cell position in the grid
-    const $cell = e.target as HTMLElement
-    const cellPosition = getCellPosition($cell)
-
-    // if the is not already in an area, set it
-    if (getArea(cellPosition[0], cellPosition[1]) !== -1) {
-      return
-    }
-
-    // set the end area
-    setEndArea(cellPosition)
-  }
-
-  const isInSelectingArea = (row: number, column: number): boolean => {
-    if (!startArea || !endArea) {
-      return false
-    }
-
-    const startRow = Math.min(startArea[0], endArea[0])
-    const endRow = Math.max(startArea[0], endArea[0])
-    const startCol = Math.min(startArea[1], endArea[1])
-    const endCol = Math.max(startArea[1], endArea[1])
-
-    return (
-      row >= startRow && row <= endRow && column >= startCol && column <= endCol
-    )
-  }
-
-  const getArea = (row: number, column: number): number => {
-    for (let i in areas) {
-      const area = areas[i]
-      const [startRow, startCol, endRow, endCol] = area.position
-      if (
-        row >= startRow &&
-        row <= endRow &&
-        column >= startCol &&
-        column <= endCol
-      ) {
-        return parseInt(i)
-      }
-    }
-    return -1
-  }
-
-  const deleteContent = (area: TMediaGridArea) => {
-    area.content = null
-    const newAreas = [...areas]
-    setAreas(newAreas)
-    setParameterValue('areas', newAreas)
-  }
-
-  const deleteArea = (area: TMediaGridArea) => {
-    const newAreas = areas.filter((a) => a.id !== area.id)
-    setAreas(newAreas)
-    setParameterValue('areas', newAreas)
+    setCurrentGrid(layouts[layoutId])
   }
 
   return (
     <Canvas ctx={ctx}>
-      <div
-        className={`media-grid-field ${selecting ? '-selecting' : ''}`}
-        ref={$root}
-      >
-        <div className="media-grid-field_grid-container">
-          <div
-            className="media-grid-field_grid"
-            onPointerDown={onGridCellPointerDown}
-            onPointerUp={onGridCellPointerUp}
+      <div className={`media-grid-field`}>
+        {(config.layouts ?? []).length > 1 && (
+          <FieldGroup
             style={{
-              gridTemplateColumns: `repeat(${columns}, 1fr)`,
-              gridTemplateRows: `repeat(${rows}, 1fr)`
+              marginBottom: 'var(--spacing-l)'
             }}
           >
-            {[...Array(rows * columns)].map((_, index) => (
-              <div
-                key={index}
-                onPointerEnter={onPointerEnter}
-                className={`media-grid-field_cell ${
-                  getArea(Math.floor(index / columns), index % columns) !== -1
-                    ? '-occupied'
-                    : ''
-                } ${
-                  isInSelectingArea(
-                    Math.floor(index / columns),
-                    index % columns
-                  )
-                    ? '-in-selection'
-                    : ''
-                }`}
-              ></div>
-            ))}
-          </div>
+            <SelectField
+              id="layout"
+              name="layout"
+              label="Layout"
+              value={layout}
+              onChange={async (newValue) => {
+                switchToLayout(newValue.value)
+              }}
+              selectInputProps={{
+                options: layoutsOptions
+              }}
+            />
+          </FieldGroup>
+        )}
 
-          <div
-            className="media-grid-field_areas"
-            style={{
-              gridTemplateColumns: `repeat(${columns}, 1fr)`,
-              gridTemplateRows: `repeat(${rows}, 1fr)`
-            }}
-          >
-            {areas.map((area, i) => (
-              <div
-                key={i}
-                className="media-grid-field_area"
-                style={{
-                  gridColumnStart: area.position[1] + 1,
-                  gridColumnEnd: area.position[3] + 2,
-                  gridRowStart: area.position[0] + 1,
-                  gridRowEnd: area.position[2] + 2
-                }}
-              >
-                <div className="media-grid-field_area-controls">
-                  {area.content && (
-                    <DeleteButton
-                      className="media-grid-field_area-delete-button"
-                      label="Delete content"
-                      onConfirm={() => {
-                        deleteContent(area)
-                      }}
-                    />
-                  )}
-                  {!area.content && (
-                    <DeleteButton
-                      className="media-grid-field_area-delete-button"
-                      label="Delete area"
-                      onConfirm={() => {
-                        deleteArea(area)
-                      }}
-                    />
-                  )}
-                </div>
+        {currentGrid && (
+          <>
+            <MediaGridGrid
+              key={`${layout.value}-${currentGrid.columns}x${currentGrid.rows}`}
+              grid={currentGrid}
+              onUpdate={(newGrid) => {
+                setCurrentGrid(newGrid)
+                setGrid(layout.value, newGrid)
+              }}
+              selectContent={async () => {
+                const upload = await ctx.selectUpload({ multiple: false })
+                return {
+                  type: upload.attributes.mime_type?.startsWith('video/')
+                    ? 'video'
+                    : 'image',
+                  url: upload.attributes.url
+                }
+              }}
+            />
 
-                {!area.content && (
-                  <button
-                    className="media-grid-field_area-select-content-button"
-                    onClick={async () => {
-                      const upload = await ctx.selectUpload({ multiple: false })
-                      area.content = {
-                        type: upload.attributes.mime_type?.startsWith('video/')
-                          ? 'video'
-                          : 'image',
-                        url: upload.attributes.url
+            {parameters[layout.value].allowCustomizeGrid && (
+              <FieldGroup className="media-grid-field_grid-settings">
+                <TextField
+                  id="columns"
+                  name="columns"
+                  type="number"
+                  label="Columns count"
+                  value={tempColumns ?? currentGrid.columns}
+                  textInputProps={{
+                    onBlur: (e) => {
+                      if (!tempColumns) {
+                        return
                       }
-                      const newAreas = [...areas]
-                      newAreas[i] = area
-                      setAreas(newAreas)
-                      setParameterValue('areas', newAreas)
-                    }}
-                  >
-                    Select content
-                  </button>
-                )}
-                {area.content && area.content.type === 'image' && (
-                  <img
-                    className="media-grid-field_area-image"
-                    src={area.content.url}
-                  />
-                )}
-                {area.content && area.content.type === 'video' && (
-                  <video
-                    className="media-grid-field_area-video"
-                    src={area.content.url}
-                    loop
-                    muted
-                    playsInline
-                  />
-                )}
-              </div>
-            ))}
-          </div>
-        </div>
+                      if (currentGrid.areas?.length) {
+                        const confirm = window.confirm(
+                          'Are you sure? This will reset the grid areas.'
+                        )
+                        if (!confirm) {
+                          setTempColumns(undefined)
+                          return
+                        }
+                      }
+                      setCurrentGrid({
+                        ...currentGrid,
+                        columns: parseInt(tempColumns),
+                        areas: []
+                      })
+                      setTempColumns(undefined)
+                    }
+                  }}
+                  onChange={(newValue) => {
+                    setTempColumns(newValue)
+                  }}
+                />
+                <TextField
+                  id="columns"
+                  name="columns"
+                  type="number"
+                  label="Rows count"
+                  value={tempRows ?? currentGrid.rows}
+                  textInputProps={{
+                    onBlur: (e) => {
+                      if (!tempRows) {
+                        return
+                      }
+
+                      if (currentGrid.areas?.length) {
+                        const confirm = window.confirm(
+                          'Are you sure? This will reset the grid areas.'
+                        )
+                        if (!confirm) {
+                          setTempRows(undefined)
+                          return
+                        }
+                      }
+                      setCurrentGrid({
+                        ...currentGrid,
+                        rows: parseInt(tempRows),
+                        areas: []
+                      })
+                      setTempRows(undefined)
+                    }
+                  }}
+                  onChange={(newValue) => {
+                    setTempRows(newValue)
+                  }}
+                />
+              </FieldGroup>
+            )}
+          </>
+        )}
       </div>
     </Canvas>
   )

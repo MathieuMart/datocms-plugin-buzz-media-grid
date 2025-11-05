@@ -1,3 +1,5 @@
 @import './settings.css';
 @import './destyle/destyle.css';
-@import './form/form.css';
+
+@import '../components/ui/form/form.css';
+@import '../components/ui/typo/typo.css';

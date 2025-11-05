@@ -3,7 +3,16 @@ export type TMediaGridParameter = {
   rows: number
 }
 
-export type TMediaGrid = {}
+export type TMediaGridGrid = {
+  columns: number
+  rows: number
+  areas: TMediaGridArea[]
+  allowCustomizeGrid: boolean
+}
+
+export type TMediaGrid = {
+  [layout: string]: TMediaGridGrid
+}
 
 export type TMediaGridArea = {
   id: string

@@ -1,0 +1,25 @@
+.typo-h1 {
+  font-weight: 700;
+  font-size: 2.25rem;
+  line-height: 1.2;
+}
+.typo-h2 {
+  font-weight: 700;
+  font-size: 1.75rem;
+  line-height: 1.2;
+}
+.typo-h3 {
+  font-weight: 700;
+  font-size: 1.25rem;
+  line-height: 1.2;
+}
+.typo-p {
+  font-size: 14px;
+  line-height: 1.4;
+}
+.typo-a {
+  text-decoration: underline;
+}
+.typo-bold {
+  color: var(--warning-color);
+}
