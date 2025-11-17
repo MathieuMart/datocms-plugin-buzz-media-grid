@@ -1,7 +1,7 @@
 // @ts-nocheck
 import { upperFirst } from '@blackbyte/sugar/string'
 import { Canvas, FieldGroup, SwitchField, TextField } from 'datocms-react-ui'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import './config.css'
 import { type TConfig } from './config.type'
 
@@ -35,6 +35,27 @@ export default function Config({ ctx }) {
       ctx.notice('Config updated successfully!')
     }, 1000)
   }
+
+  // first install
+  useEffect(() => {
+    if (!Object.keys(parameters).length) {
+      const layoutsSettingsInit = {}
+      MEDIA_GRID_DEFAULTS.layouts.forEach((layout) => {
+        layoutsSettingsInit[layout] = {
+          columns: MEDIA_GRID_DEFAULTS.columns,
+          rows: MEDIA_GRID_DEFAULTS.rows,
+          allowCustomizeGrid: MEDIA_GRID_DEFAULTS.allowCustomizeGrid
+        }
+      })
+
+      setLayouts(MEDIA_GRID_DEFAULTS.layouts)
+      setLayoutsSettings(layoutsSettingsInit)
+      updateParameters({
+        layouts: MEDIA_GRID_DEFAULTS.layouts,
+        layoutsSettings: layoutsSettingsInit
+      })
+    }
+  }, [])
 
   return (
     <Canvas ctx={ctx}>

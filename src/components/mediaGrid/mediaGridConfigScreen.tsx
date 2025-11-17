@@ -8,7 +8,7 @@ import {
   SwitchField,
   TextField
 } from 'datocms-react-ui'
-import { useCallback, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { MEDIA_GRID_DEFAULTS } from '../config/config.js'
 import { TGridParameter } from './mediaGrid.type.js'
 
@@ -25,6 +25,28 @@ export default function MediaGridConfigScreen({ ctx }) {
     value: layout
   }))
   const [layout, setLayout] = useState(layoutsOptions[0])
+
+  // first install
+  useEffect(() => {
+    if (!Object.keys(formValues).length) {
+      const formValuesInit = {}
+      parameters.layouts.forEach((layout) => {
+        formValuesInit[layout] = {
+          columns:
+            parameters.layoutsSettings[layout]?.columns ??
+            MEDIA_GRID_DEFAULTS.columns,
+          rows:
+            parameters.layoutsSettings[layout]?.rows ??
+            MEDIA_GRID_DEFAULTS.rows,
+          allowCustomizeGrid:
+            parameters.layoutsSettings[layout]?.allowCustomizeGrid ??
+            MEDIA_GRID_DEFAULTS.allowCustomizeGrid
+        }
+      })
+      setFormValues(formValuesInit)
+      ctx.setParameters(formValuesInit)
+    }
+  }, [])
 
   const update = useCallback((layout: string, field: string, value: any) => {
     const layoutSettings = formValues[layout] ?? {}
@@ -60,54 +82,46 @@ export default function MediaGridConfigScreen({ ctx }) {
         />
       </FieldGroup>
 
-      <FieldGroup>
-        <h3 className="typo-h3">
-          Settings for layout <span className="typo-bold">{layout.label}</span>
-        </h3>
+      {formValues?.[layout.value] && (
+        <FieldGroup>
+          <h3 className="typo-h3">
+            Settings for layout{' '}
+            <span className="typo-bold">{layout.label}</span>
+          </h3>
 
-        <TextField
-          id="columns"
-          name="columns"
-          type="number"
-          label="Columns count"
-          defaultValue={6}
-          value={
-            formValues[layout.value]?.columns ??
-            parameters.layoutsSettings[layout.value]?.columns ??
-            MEDIA_GRID_DEFAULTS.columns
-          }
-          onChange={(newValue) => {
-            update(layout.value, 'columns', parseInt(newValue))
-          }}
-        />
-        <TextField
-          id="columns"
-          name="columns"
-          type="number"
-          label="Rows count"
-          value={
-            formValues[layout.value]?.rows ??
-            parameters.layoutsSettings[layout.value]?.rows ??
-            MEDIA_GRID_DEFAULTS.rows
-          }
-          onChange={(newValue) => {
-            update(layout.value, 'rows', parseInt(newValue))
-          }}
-        />
-        <SwitchField
-          name="allowCustomizeGrid"
-          id="allowCustomizeGrid"
-          label="Allow customizing grid?"
-          hint="Enable users to customize the grid layout (columns and rows)"
-          value={
-            formValues[layout.value]?.allowCustomizeGrid ??
-            MEDIA_GRID_DEFAULTS.allowCustomizeGrid
-          }
-          onChange={(newValue) => {
-            update(layout.value, 'allowCustomizeGrid', newValue)
-          }}
-        />
-      </FieldGroup>
+          <TextField
+            id="columns"
+            name="columns"
+            type="number"
+            label="Columns count"
+            defaultValue={6}
+            value={formValues[layout.value]?.columns}
+            onChange={(newValue) => {
+              update(layout.value, 'columns', parseInt(newValue))
+            }}
+          />
+          <TextField
+            id="columns"
+            name="columns"
+            type="number"
+            label="Rows count"
+            value={formValues[layout.value]?.rows}
+            onChange={(newValue) => {
+              update(layout.value, 'rows', parseInt(newValue))
+            }}
+          />
+          <SwitchField
+            name="allowCustomizeGrid"
+            id="allowCustomizeGrid"
+            label="Allow customizing grid?"
+            hint="Enable users to customize the grid layout (columns and rows)"
+            value={formValues[layout.value]?.allowCustomizeGrid}
+            onChange={(newValue) => {
+              update(layout.value, 'allowCustomizeGrid', newValue)
+            }}
+          />
+        </FieldGroup>
+      )}
     </Canvas>
   )
 }
