@@ -20,5 +20,10 @@ export type TMediaGridArea = {
   content: {
     type: 'video' | 'image'
     url: string
+    width?: number
+    height?: number
+    thumbhash?: string
+    alt?: string
+    title?: string
   }
 }

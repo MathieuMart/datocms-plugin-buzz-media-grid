@@ -109,11 +109,33 @@ export default function MediaGridField({ ctx }) {
               }}
               selectContent={async () => {
                 const upload = await ctx.selectUpload({ multiple: false })
+                console.log('UOPLL', {
+                  type: upload.attributes.mime_type?.startsWith('video/')
+                    ? 'video'
+                    : 'image',
+                  url: upload.attributes.url,
+                  width: upload.attributes.width,
+                  height: upload.attributes.height,
+                  thumbhash: upload.attributes.thumbhash,
+                  alt: upload.attributes.default_field_metadata?.[ctx.locale]
+                    ?.alt,
+                  title:
+                    upload.attributes.default_field_metadata?.[ctx.locale]
+                      ?.title
+                })
                 return {
                   type: upload.attributes.mime_type?.startsWith('video/')
                     ? 'video'
                     : 'image',
-                  url: upload.attributes.url
+                  url: upload.attributes.url,
+                  width: upload.attributes.width,
+                  height: upload.attributes.height,
+                  thumbhash: upload.attributes.thumbhash,
+                  alt: upload.attributes.default_field_metadata?.[ctx.locale]
+                    ?.alt,
+                  title:
+                    upload.attributes.default_field_metadata?.[ctx.locale]
+                      ?.title
                 }
               }}
             />
