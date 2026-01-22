@@ -76,7 +76,10 @@ export default function MediaGridArea({
       {!area.content && (
         <button
           className="media-grid-area_select-content-button"
-          onClick={async () => {
+          onClick={async (e) => {
+            if (e.metaKey) {
+              return
+            }
             onSelectContent?.(area)
           }}
         >

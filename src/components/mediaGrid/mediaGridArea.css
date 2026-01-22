@@ -29,9 +29,18 @@
 
   .media-grid-area_controls {
     position: absolute;
-    top: 15px;
-    right: 15px;
+    top: 10px;
+    right: 10px;
     z-index: 10;
+
+    .delete-button {
+      display: none;
+    }
+  }
+  &:hover {
+    .delete-button {
+      display: flex;
+    }
   }
 
   .media-grid-area_image,

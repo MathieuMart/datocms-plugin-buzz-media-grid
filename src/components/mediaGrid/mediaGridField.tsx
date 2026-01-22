@@ -26,12 +26,13 @@ export default function MediaGridField({ ctx }) {
   const [layout, setLayout] = useState(layoutsOptions[0])
 
   const initNewGrid = (): TMediaGridGrid => {
-    layouts[layout.value] = {
+    console.log('Layout', layout.value)
+    const newGrid = {
       columns: parameters[layout.value]?.columns ?? MEDIA_GRID_DEFAULTS.columns,
       // rows: parameters[layout.value]?.rows ?? MEDIA_GRID_DEFAULTS.rows,
       areas: []
     }
-    return layouts[layout.value]
+    return newGrid
   }
 
   const [currentGrid, setCurrentGrid] = useState<TMediaGridGrid>(
@@ -52,7 +53,7 @@ export default function MediaGridField({ ctx }) {
     }
 
     setLayouts(newLayouts)
-    ctx.setFieldValue(ctx.fieldPath, JSON.stringify(layouts))
+    ctx.setFieldValue(ctx.fieldPath, JSON.stringify(newLayouts))
   }
 
   const switchToLayout = (layoutId: string) => {
@@ -62,9 +63,8 @@ export default function MediaGridField({ ctx }) {
         ...layouts,
         [layoutId]: initNewGrid()
       }
-      setLayouts({ ...layouts })
+      setLayouts(newLayouts)
     }
-
     setCurrentGrid(layouts[layoutId])
   }
 
@@ -98,6 +98,8 @@ export default function MediaGridField({ ctx }) {
               key={layout.value}
               grid={currentGrid}
               onUpdate={(newGrid) => {
+                console.log('set', newGrid, layout.value)
+
                 setCurrentGrid(newGrid)
                 setGrid(layout.value, newGrid)
               }}
