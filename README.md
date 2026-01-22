@@ -18,6 +18,9 @@ This plugin allows you to create some grids with customizable columns and rows c
 2. Easy area selection (**click & drag**)
 3. **Multiple custom layouts** support (desktop, mobile, etc...)
 4. Integrated with **Dato media selector**
+5. Move and resize areas
+6. Delete content/area by clicking on it with the `meta` key pressed
+7. Dynamic rows count depending on areas sizes and placement
 
 ## Usage
 

@@ -1,0 +1,32 @@
+.media-grid-mockup {
+  position: relative;
+  min-height: calc(var(--area-size) * 4);
+
+  .media-grid-mockup_grid {
+    display: grid;
+    position: absolute;
+    top: 0;
+    left: 0;
+    flex-wrap: wrap;
+    gap: 1px;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+  }
+
+  .media-grid-mockup_cell {
+    background: #efefef;
+    aspect-ratio: 1;
+
+    &:hover {
+      background: #dcdcdc;
+    }
+
+    &.-in-selection {
+      background: #a7a7a7 !important;
+    }
+  }
+  &.-selecting {
+    cursor: crosshair;
+  }
+}

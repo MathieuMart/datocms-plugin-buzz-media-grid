@@ -6,50 +6,21 @@
   background-color: var(--lighter-bg-color);
   padding: 30px;
 
-  .media-grid-field_grid-container {
-    position: relative;
-    margin-block-end: var(--spacing-m);
+  .react-grid-layout {
+    min-height: calc(var(--area-size) * 4);
+  }
+
+  .react-grid-placeholder {
+    background: var(--warning-color) !important;
+  }
+
+  .react-resizable-handle {
+    z-index: 999;
   }
 
   .media-grid-field_grid {
-    display: grid;
-    gap: 10px;
-  }
-
-  .media-grid-field_cell {
-    background: #e5e5e5;
-    aspect-ratio: 1;
-
-    &:hover {
-      background: #ccc;
-    }
-
-    &.-in-selection {
-      background: #a7a7a7 !important;
-    }
-    &.-occupied {
-      opacity: 0.3;
-    }
-  }
-  &.-selecting {
-    cursor: crosshair;
-  }
-
-  .media-grid-field_area-controls {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    z-index: 10;
-  }
-
-  .media-grid-field_areas {
-    display: grid;
-    position: absolute;
-    top: 0;
-    left: 0;
-    gap: 10px;
+    position: relative;
     width: 100%;
-    height: 100%;
     pointer-events: none;
   }
 
@@ -59,37 +30,49 @@
     justify-content: center;
     align-items: center;
     background: white;
+    aspect-ratio: var(--aspect-ratio);
     pointer-events: all;
-
-    &:hover {
-      &:before {
-        position: absolute;
-        top: 0;
-        right: 0;
-        bottom: 0;
-        left: 0;
-        z-index: 1;
-        border: 2px solid var(--warning-color);
-        pointer-events: none;
-        content: '';
-      }
-    }
   }
 
-  .media-grid-field_area-image,
-  .media-grid-field_area-video {
+  .media-grid-mockup {
     position: absolute;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    object-fit: cover;
+    pointer-events: all;
   }
 
-  .media-grid-field_area-select-content-button {
+  .media-grid-field_areas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    gap: 1;
+    /* pointer-events: none; */
+    aspect-ratio: var(--aspect-ratio);
+    width: 100%;
+    height: 100%;
+  }
+
+  .media-grid-field_area-overlay {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    translate: -50% -50%;
     border-radius: var(--radius);
-    background: #dee2e0;
-    padding: 10px;
+    background: white;
+    padding: 5px 10px 3px 10px;
+    pointer-events: none;
+    font-size: 12px;
+    user-select: none;
+    text-align: center;
+    white-space: nowrap;
+  }
+
+  .media-grid-field_area-overlay-label {
+  }
+
+  .media-grid-field_area-overlay-value {
     font-weight: bold;
   }
 
@@ -101,5 +84,9 @@
     > div {
       flex-grow: 1;
     }
+  }
+
+  .grid-stack-item-content {
+    background: white;
   }
 }

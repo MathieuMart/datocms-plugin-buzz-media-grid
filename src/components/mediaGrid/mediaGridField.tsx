@@ -4,11 +4,12 @@ import { get } from '@blackbyte/sugar/object'
 import { upperFirst } from '@blackbyte/sugar/string'
 import { buildClient } from '@datocms/cma-client-browser'
 import { Canvas, FieldGroup, SelectField, TextField } from 'datocms-react-ui'
+
 import { useState } from 'react'
 import { MEDIA_GRID_DEFAULTS } from '../config/config'
 import './mediaGrid.css'
 import { TMediaGridGrid } from './mediaGrid.type'
-import MediaGridGrid from './mediaGridGrid'
+import MediaGridSortableGrid from './mediaGridSortableGrid'
 
 export default function MediaGridField({ ctx }) {
   const parameters = ctx.parameters
@@ -27,7 +28,7 @@ export default function MediaGridField({ ctx }) {
   const initNewGrid = (): TMediaGridGrid => {
     layouts[layout.value] = {
       columns: parameters[layout.value]?.columns ?? MEDIA_GRID_DEFAULTS.columns,
-      rows: parameters[layout.value]?.rows ?? MEDIA_GRID_DEFAULTS.rows,
+      // rows: parameters[layout.value]?.rows ?? MEDIA_GRID_DEFAULTS.rows,
       areas: []
     }
     return layouts[layout.value]
@@ -42,15 +43,8 @@ export default function MediaGridField({ ctx }) {
 
   let changeGridLayoutTimeout
   const [tempColumns, setTempColumns] = useState()
-  const [tempRows, setTempRows] = useState()
 
   const setGrid = (layoutId: string, newGrid: TMediaGridGrid) => {
-    // if the value is the same, do nothing
-    // if (JSON.stringify(layouts[layoutId]) === JSON.stringify(newGrid)) {
-    //   console.log('SA')
-    //   return
-    // }
-
     // set then new value
     const newLayouts = {
       ...layouts,
@@ -100,8 +94,8 @@ export default function MediaGridField({ ctx }) {
 
         {currentGrid && (
           <>
-            <MediaGridGrid
-              key={`${layout.value}-${currentGrid.columns}x${currentGrid.rows}`}
+            <MediaGridSortableGrid
+              key={layout.value}
               grid={currentGrid}
               onUpdate={(newGrid) => {
                 setCurrentGrid(newGrid)
@@ -109,20 +103,6 @@ export default function MediaGridField({ ctx }) {
               }}
               selectContent={async () => {
                 const upload = await ctx.selectUpload({ multiple: false })
-                console.log('UOPLL', {
-                  type: upload.attributes.mime_type?.startsWith('video/')
-                    ? 'video'
-                    : 'image',
-                  url: upload.attributes.url,
-                  width: upload.attributes.width,
-                  height: upload.attributes.height,
-                  thumbhash: upload.attributes.thumbhash,
-                  alt: upload.attributes.default_field_metadata?.[ctx.locale]
-                    ?.alt,
-                  title:
-                    upload.attributes.default_field_metadata?.[ctx.locale]
-                      ?.title
-                })
                 return {
                   type: upload.attributes.mime_type?.startsWith('video/')
                     ? 'video'
@@ -138,7 +118,7 @@ export default function MediaGridField({ ctx }) {
                       ?.title
                 }
               }}
-            />
+            ></MediaGridSortableGrid>
 
             {parameters[layout.value].allowCustomizeGrid && (
               <FieldGroup className="media-grid-field_grid-settings">
@@ -172,39 +152,6 @@ export default function MediaGridField({ ctx }) {
                   }}
                   onChange={(newValue) => {
                     setTempColumns(newValue)
-                  }}
-                />
-                <TextField
-                  id="columns"
-                  name="columns"
-                  type="number"
-                  label="Rows count"
-                  value={tempRows ?? currentGrid.rows}
-                  textInputProps={{
-                    onBlur: (e) => {
-                      if (!tempRows) {
-                        return
-                      }
-
-                      if (currentGrid.areas?.length) {
-                        const confirm = window.confirm(
-                          'Are you sure? This will reset the grid areas.'
-                        )
-                        if (!confirm) {
-                          setTempRows(undefined)
-                          return
-                        }
-                      }
-                      setCurrentGrid({
-                        ...currentGrid,
-                        rows: parseInt(tempRows),
-                        areas: []
-                      })
-                      setTempRows(undefined)
-                    }
-                  }}
-                  onChange={(newValue) => {
-                    setTempRows(newValue)
                   }}
                 />
               </FieldGroup>

@@ -35,9 +35,9 @@ export default function MediaGridConfigScreen({ ctx }) {
           columns:
             parameters.layoutsSettings[layout]?.columns ??
             MEDIA_GRID_DEFAULTS.columns,
-          rows:
-            parameters.layoutsSettings[layout]?.rows ??
-            MEDIA_GRID_DEFAULTS.rows,
+          // rows:
+          //   parameters.layoutsSettings[layout]?.rows ??
+          //   MEDIA_GRID_DEFAULTS.rows,
           allowCustomizeGrid:
             parameters.layoutsSettings[layout]?.allowCustomizeGrid ??
             MEDIA_GRID_DEFAULTS.allowCustomizeGrid
@@ -100,7 +100,7 @@ export default function MediaGridConfigScreen({ ctx }) {
               update(layout.value, 'columns', parseInt(newValue))
             }}
           />
-          <TextField
+          {/* <TextField
             id="columns"
             name="columns"
             type="number"
@@ -109,12 +109,12 @@ export default function MediaGridConfigScreen({ ctx }) {
             onChange={(newValue) => {
               update(layout.value, 'rows', parseInt(newValue))
             }}
-          />
+          /> */}
           <SwitchField
             name="allowCustomizeGrid"
             id="allowCustomizeGrid"
             label="Allow customizing grid?"
-            hint="Enable users to customize the grid layout (columns and rows)"
+            hint="Enable users to customize the grid layout (columns)"
             value={formValues[layout.value]?.allowCustomizeGrid}
             onChange={(newValue) => {
               update(layout.value, 'allowCustomizeGrid', newValue)

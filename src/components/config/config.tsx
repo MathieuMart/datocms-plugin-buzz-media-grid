@@ -10,7 +10,7 @@ let updateTimeout
 export const MEDIA_GRID_DEFAULTS = {
   layouts: ['desktop'],
   columns: 12,
-  rows: 12,
+  // rows: 12,
   allowCustomizeGrid: true
 }
 
@@ -43,7 +43,7 @@ export default function Config({ ctx }) {
       MEDIA_GRID_DEFAULTS.layouts.forEach((layout) => {
         layoutsSettingsInit[layout] = {
           columns: MEDIA_GRID_DEFAULTS.columns,
-          rows: MEDIA_GRID_DEFAULTS.rows,
+          // rows: MEDIA_GRID_DEFAULTS.rows,
           allowCustomizeGrid: MEDIA_GRID_DEFAULTS.allowCustomizeGrid
         }
       })
@@ -105,7 +105,7 @@ export default function Config({ ctx }) {
                 })
               }}
             />
-            <TextField
+            {/* <TextField
               id="rows"
               name="rows"
               type="number"
@@ -123,12 +123,12 @@ export default function Config({ ctx }) {
                   layoutsSettings: { ...layoutsSettings }
                 })
               }}
-            />
+            /> */}
             <SwitchField
               name="allowCustomizeGrid"
               id="allowCustomizeGrid"
               label="Allow customizing grid?"
-              hint="Enable users to customize the grid layout (columns and rows). This is the default. It can ben overridden in the media grid field configuration."
+              hint="Enable users to customize the grid layout (columns). This is the default. It can ben overridden in the media grid field configuration."
               value={
                 layoutsSettings[layout]?.allowCustomizeGrid ??
                 MEDIA_GRID_DEFAULTS.allowCustomizeGrid

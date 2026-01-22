@@ -1,6 +1,6 @@
 export type TMediaGridParameter = {
   columns: number
-  rows: number
+  // rows: number
 }
 
 export type TMediaGridGrid = {

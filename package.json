@@ -2,7 +2,7 @@
   "name": "@buzzbrothers/datocms-plugin-buzz-media-grid",
   "description": "This plugin allows you to create some grids with customizable columns and rows count in which you can then draw areas in which to put media (image or video)",
   "homepage": "https://github.com/BuzzBrothers-agency/datocms-plugin-buzz-media-grid",
-  "version": "0.0.12",
+  "version": "0.0.13",
   "author": "Buzzbrothers <tech@buzzbrothers.ch> (https://buzzbrothers.ch)",
   "type": "module",
   "keywords": [
@@ -35,20 +35,25 @@
     "prepublishOnly": "npm run build"
   },
   "dependencies": {
-    "@datocms/cma-client-browser": "^3.3.15",
     "@blackbyte/sugar": "^1.0.0-beta.4",
+    "@datocms/cma-client-browser": "^3.3.15",
     "datocms-plugin-sdk": "^2.0.0",
     "datocms-react-ui": "^2.0.15",
+    "deep-object-diff": "^1.1.9",
+    "gridstack": "^12.4.2",
+    "lodash": "^4.17.21",
     "react": "^19.2.0",
-    "react-dom": "^19.2.0"
+    "react-dom": "^19.2.0",
+    "react-fast-compare": "^3.2.2",
+    "react-grid-layout": "^2.2.2"
   },
   "devDependencies": {
-    "prettier": "^3.6.2",
-    "prettier-plugin-css-order": "^2.1.2",
     "@types/react": "^18.3.3",
     "@types/react-dom": "^18.3.0",
     "@vitejs/plugin-react": "^4.3.1",
     "globals": "^15.9.0",
+    "prettier": "^3.6.2",
+    "prettier-plugin-css-order": "^2.1.2",
     "typescript": "^5.5.3",
     "vite": "^5.4.1"
   }
