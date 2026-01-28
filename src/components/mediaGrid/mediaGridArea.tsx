@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import 'react-grid-layout/css/styles.css'
 import 'react-resizable/css/styles.css'
 import DeleteButton from '../ui/deleteButton/deleteButton'
@@ -16,6 +16,11 @@ export default function MediaGridArea({
   onDeleteArea?: (area: TMediaGridArea) => void
   onSelectContent?: (area: TMediaGridArea) => Promise<any>
 }) {
+  const $root = useRef<HTMLDivElement>(null)
+
+  const [width, setWidth] = useState(0)
+  const [height, setHeight] = useState(0)
+
   const deleteContent = (area: TMediaGridArea) => {
     onDeleteContent?.(area)
   }
@@ -24,8 +29,29 @@ export default function MediaGridArea({
     onDeleteArea?.(area)
   }
 
+  let resizeTimeout
+
+  useEffect(() => {
+    clearTimeout(resizeTimeout)
+
+    resizeTimeout = setTimeout(() => {
+      let width =
+        ($root.current?.offsetWidth ?? 0) * (window.devicePixelRatio ?? 1)
+      let height =
+        ($root.current?.offsetHeight ?? 0) * (window.devicePixelRatio ?? 1)
+
+      // round with at 50 pixels
+      width = Math.round(width / 50) * 50
+      height = Math.round(height / 50) * 50
+
+      setWidth(width)
+      setHeight(height)
+    }, 500)
+  }, [$root.current, $root.current?.offsetWidth, $root.current?.offsetHeight])
+
   return (
     <div
+      ref={$root}
       key={area.id}
       className="media-grid-area"
       onClick={(e) => {
@@ -86,8 +112,11 @@ export default function MediaGridArea({
           Select content
         </button>
       )}
-      {area.content && area.content.type === 'image' && (
-        <img className="media-grid-area_image" src={area.content.url} />
+      {area.content && width && height && area.content.type === 'image' && (
+        <img
+          className="media-grid-area_image"
+          src={`${area.content.url}?w=${width}&h=${height}&fit=crop`}
+        />
       )}
       {area.content && area.content.type === 'video' && (
         <video
