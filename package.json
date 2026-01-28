@@ -2,7 +2,7 @@
   "name": "@buzzbrothers/datocms-plugin-buzz-media-grid",
   "description": "This plugin allows you to create some grids with customizable columns and rows count in which you can then draw areas in which to put media (image or video)",
   "homepage": "https://github.com/BuzzBrothers-agency/datocms-plugin-buzz-media-grid",
-  "version": "0.0.14",
+  "version": "0.0.15",
   "author": "Buzzbrothers <tech@buzzbrothers.ch> (https://buzzbrothers.ch)",
   "type": "module",
   "keywords": [

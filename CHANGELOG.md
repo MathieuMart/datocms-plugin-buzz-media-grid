@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.0.15
+
+- Add imgix parameters to resize image in order to display the best size in grid
+
 ## 0.0.13
 
 - Add possibility to move and resize areas
